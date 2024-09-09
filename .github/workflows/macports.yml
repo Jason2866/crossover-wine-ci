@@ -139,3 +139,13 @@ jobs:
         with:
           name: ${{ env.WINE_INSTALLATION }}
           path: ${{ env.WINE_INSTALLATION }}.tar.gz
+
+      - name: Tar macport libs
+        run: |
+          tar -czvf macport_libs.tar.gz ${{ env.LIBRARY_PATH }}
+
+      - name: Uploading macport libs
+        uses: actions/upload-artifact@v4
+        with:
+          name: macport_libs
+          path: macport_libs.tar.gz
