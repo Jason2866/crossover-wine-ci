@@ -57,11 +57,12 @@ jobs:
         run: |
           sudo port install \
             freetype \
-            gettext-runtime \
             gnutls-devel \
+            gettext-runtime \
+            libpcap \
+            libsdl2 \
             libinotify \
-            moltenvk \
-            libsdl2
+            moltenvk-latest \
 
       - name: Download Crossover Sources
         run: |
