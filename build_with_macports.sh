@@ -43,7 +43,7 @@ export WINE_INSTALLATION=wine-cx${CROSS_OVER_VERSION}
 if ! command -v "/opt/local/bin/port" &> /dev/null
 then
     echo "</opt/local/bin/port> could not be found"
-    echo "A macports installation is required"
+    echo "A MacPorts installation is required"
     exit
 fi
 
@@ -57,15 +57,19 @@ endgroup
 
 
 begingroup "Installing dependencies libraries"
-sudo port install freetype gettext-runtime gnutls moltenvk libpcap libsdl2
+sudo port install freetype gnutls-devel gettext-runtime libpcap libsdl2 moltenvk-latest
 endgroup
 
 
 export CC="ccache clang"
 export CXX="${CC}++"
-export CPATH=/opt/local/include
-export LIBRARY_PATH=/opt/local/lib
-export MACOSX_DEPLOYMENT_TARGET=10.15.4
+export i386_CC="ccache i686-w64-mingw32-gcc"
+export x86_64_CC="ccache x86_64-w64-mingw32-gcc"
+
+export CPATH="/opt/local/include"
+export LIBRARY_PATH="/opt/local/lib"
+export MACOSX_DEPLOYMENT_TARGET="10.15.4"
+
 export OPTFLAGS="-g -O2"
 export CFLAGS="${OPTFLAGS} -Wno-deprecated-declarations -Wno-format"
 # gcc14.1 now sets -Werror-incompatible-pointer-types
