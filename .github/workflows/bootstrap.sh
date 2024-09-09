@@ -16,6 +16,7 @@ endgroup() {
 }
 
 MACPORTS_VERSION=2.10.1
+MACPORTS_VERSION_PATCH=23
 
 OS_MAJOR=$(uname -r | cut -f 1 -d .)
 OS_ARCH=$(uname -m)
@@ -28,9 +29,9 @@ case "$OS_ARCH" in
         ;;
 esac
 
-MACPORTS_FILENAME=MacPorts-${MACPORTS_VERSION}-${OS_MAJOR}.tar.bz2
-
-
+MACPORTS_FILENAME=MacPorts-${MACPORTS_VERSION}-${MACPORTS_VERSION_PATCH}.tar.bz2
+# MacPorts-2.10.1-23.tar.bz2
+# https://github.com/macports/macports-ci-files/releases/download/v2.10.1/MacPorts-2.10.1-23.tar.bz2
 begingroup "Fetching MacPorts..."
 /usr/bin/curl -fsSLO "https://github.com/macports/macports-ci-files/releases/download/v${MACPORTS_VERSION}/${MACPORTS_FILENAME}" &
 curl_mpbase_pid=$!
