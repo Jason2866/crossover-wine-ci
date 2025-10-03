@@ -104,7 +104,7 @@ endgroup
 
 begingroup "Cloning macports-wine"
 cd /opt
-sudo git clone --depth=1 https://github.com/Gcenx/macports-wine.git
+sudo git clone --depth=1 https://github.com/Jason2866/macports-wine.git
 endgroup
 
 
