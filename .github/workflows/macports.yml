@@ -24,8 +24,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Action only suports building 25.1.0 or later
-        CROSS_OVER_VERSION: [25.1.1]
+        # Action only suports building 26.3.0 or later
+        CROSS_OVER_VERSION: [26.3.0]
 
     runs-on: macos-latest
 
