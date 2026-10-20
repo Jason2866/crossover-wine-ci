@@ -27,7 +27,7 @@ jobs:
         # Action only suports building 26.3.0 or later
         CROSS_OVER_VERSION: [26.3.0]
 
-    runs-on: macos-latest
+    runs-on: macos-15-intel
 
     env:
       CROSS_OVER_SOURCE_URL: https://media.codeweavers.com/pub/crossover/source/crossover-sources-${{ matrix.CROSS_OVER_VERSION }}.tar.gz
