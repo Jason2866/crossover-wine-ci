@@ -104,6 +104,9 @@ echo "host_blacklist *.distfiles.macports.org *.packages.macports.org" | sudo te
 echo "archive_site_local https://packages-private.macports.org/:tbz2" | sudo tee -a /opt/local/etc/macports/macports.conf >/dev/null
 # Only install for target x86_64
 echo "build_arch x86_64" | sudo tee -a /opt/local/etc/macports/macports.conf >/dev/null
+if [ "$(uname -m)" = arm64 ]; then
+    echo "universal_archs arm64 x86_64" | sudo tee -a /opt/local/etc/macports/macports.conf >/dev/null
+fi
 # Prefer to get archives from the public server instead of the private server
 # preferred_hosts has no effect on archive_site_local
 # See https://trac.macports.org/ticket/57720
@@ -116,7 +119,7 @@ endgroup
 
 begingroup "Running postflight"
 # Create macports user
-/usr/bin/arch -x86_64 sudo /opt/local/libexec/macports/postflight/postflight
+sudo /opt/local/libexec/macports/postflight/postflight
 endgroup
 
 
@@ -127,6 +130,6 @@ endgroup
 
 
 begingroup "Updating PortIndex"
-/usr/bin/arch -x86_64 sudo /opt/local/bin/port sync >/dev/null
-/usr/bin/arch -x86_64 sudo /opt/local/bin/port sync -v
+sudo /opt/local/bin/port sync >/dev/null
+sudo /opt/local/bin/port sync -v
 endgroup

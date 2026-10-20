@@ -38,16 +38,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Enable x86_64 execution
-        run: |
-          set -eu
-          if [ "$(uname -m)" = arm64 ]; then
-            sudo /usr/sbin/softwareupdate --install-rosetta --agree-to-license
-          fi
-          arch=$(/usr/bin/arch -x86_64 /usr/bin/uname -m)
-          echo "MacPorts architecture: $arch"
-          test "$arch" = x86_64
-
       - name: Bootstrap MacPorts
         run: . .github/workflows/bootstrap.sh
 
@@ -59,7 +49,13 @@ jobs:
 
       - name: Install build dependencies
         run: |
-          /usr/bin/arch -x86_64 sudo /opt/local/bin/port install \
+          set -eu
+          if [ "$(uname -m)" = arm64 ]; then
+            sudo port install gmp +universal
+            sudo port install mpfr +universal
+            sudo port install libmpc +universal
+          fi
+          sudo port install \
             bison \
             ccache \
             gettext \
@@ -69,17 +65,23 @@ jobs:
       - name: Verify x86_64 build dependencies
         run: |
           set -eu
-          test "$(/usr/bin/arch -x86_64 /usr/bin/uname -m)" = x86_64
+          if [ "$(uname -m)" = arm64 ]; then
+            architectures="arm64 x86_64"
+          else
+            architectures=x86_64
+          fi
           for library in /opt/local/lib/libgmp.dylib /opt/local/lib/libmpfr.dylib /opt/local/lib/libmpc.dylib; do
             test -f "$library"
-            lipo -verify_arch x86_64 "$library"
+            for architecture in $architectures; do
+              lipo -verify_arch "$architecture" "$library"
+            done
           done
           i686-w64-mingw32-gcc --version
           x86_64-w64-mingw32-gcc --version
 
       - name: Install runtime dependencies
         run: |
-          /usr/bin/arch -x86_64 sudo /opt/local/bin/port install \
+          sudo port install \
             freetype \
             gettext-runtime \
             gnutls-devel \
