@@ -71,6 +71,7 @@ jobs:
           done
           printf '#include <gmp.h>\n#include <mpfr.h>\n#include <mpc.h>\n' |
             /usr/bin/clang -fsyntax-only -x c -I/opt/local/include -
+          cp /opt/local/include/gmp.h "$RUNNER_TEMP/gmp.h"
           i686-w64-mingw32-gcc --version
           x86_64-w64-mingw32-gcc --version
 
@@ -78,6 +79,12 @@ jobs:
         run: |
           set -eu
           if [ "$(uname -m)" = arm64 ]; then
+            sudo port install gmp +universal
+            sudo install -m 0644 "$RUNNER_TEMP/gmp.h" /opt/local/include/gmp.h
+            lipo /opt/local/lib/libgmp.dylib -verify_arch arm64
+            lipo /opt/local/lib/libgmp.dylib -verify_arch x86_64
+            printf '#include <gmp.h>\n' |
+              /usr/bin/clang -fsyntax-only -x c -I/opt/local/include -
             for port in freetype gettext-runtime gnutls-devel libinotify moltenvk libsdl2; do
               sudo port install "$port" +universal
             done
