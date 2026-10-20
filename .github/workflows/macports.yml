@@ -50,11 +50,6 @@ jobs:
       - name: Install build dependencies
         run: |
           set -eu
-          if [ "$(uname -m)" = arm64 ]; then
-            sudo port install gmp +universal
-            sudo port install mpfr +universal
-            sudo port install libmpc +universal
-          fi
           sudo port install \
             bison \
             ccache \
@@ -62,32 +57,51 @@ jobs:
             mingw-w64 \
             pkgconfig
 
-      - name: Verify x86_64 build dependencies
+      - name: Verify native build dependencies
         run: |
           set -eu
           if [ "$(uname -m)" = arm64 ]; then
-            architectures="arm64 x86_64"
+            architecture=arm64
           else
-            architectures=x86_64
+            architecture=x86_64
           fi
           for library in /opt/local/lib/libgmp.dylib /opt/local/lib/libmpfr.dylib /opt/local/lib/libmpc.dylib; do
             test -f "$library"
-            for architecture in $architectures; do
-              lipo -verify_arch "$architecture" "$library"
-            done
+            lipo -verify_arch "$architecture" "$library"
           done
+          printf '#include <gmp.h>\n#include <mpfr.h>\n#include <mpc.h>\n' |
+            /usr/bin/clang -fsyntax-only -x c -I/opt/local/include -
           i686-w64-mingw32-gcc --version
           x86_64-w64-mingw32-gcc --version
 
       - name: Install runtime dependencies
         run: |
-          sudo port install \
-            freetype \
-            gettext-runtime \
-            gnutls-devel \
-            libinotify \
-            moltenvk \
-            libsdl2
+          set -eu
+          if [ "$(uname -m)" = arm64 ]; then
+            for port in freetype gettext-runtime gnutls-devel libinotify moltenvk libsdl2; do
+              sudo port install "$port" +universal
+            done
+          else
+            sudo port install \
+              freetype \
+              gettext-runtime \
+              gnutls-devel \
+              libinotify \
+              moltenvk \
+              libsdl2
+          fi
+
+      - name: Verify x86_64 runtime libraries
+        if: runner.arch == 'ARM64'
+        run: |
+          set -eu
+          for port in freetype gnutls-devel libsdl2; do
+            libraries="$(sudo port contents "$port" | awk '$NF ~ /\.dylib$/ { print $NF }')"
+            test -n "$libraries"
+            while IFS= read -r library; do
+              lipo -verify_arch x86_64 "$library"
+            done <<< "$libraries"
+          done
 
       - name: Download Crossover Sources
         run: |

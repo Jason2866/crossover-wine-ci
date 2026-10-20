@@ -102,10 +102,11 @@ echo "ui_interactive no" | sudo tee -a /opt/local/etc/macports/macports.conf >/d
 echo "host_blacklist *.distfiles.macports.org *.packages.macports.org" | sudo tee -a /opt/local/etc/macports/macports.conf >/dev/null
 # Also try downloading archives from the private server
 echo "archive_site_local https://packages-private.macports.org/:tbz2" | sudo tee -a /opt/local/etc/macports/macports.conf >/dev/null
-# Only install for target x86_64
-echo "build_arch x86_64" | sudo tee -a /opt/local/etc/macports/macports.conf >/dev/null
 if [ "$(uname -m)" = arm64 ]; then
+    echo "build_arch arm64" | sudo tee -a /opt/local/etc/macports/macports.conf >/dev/null
     echo "universal_archs arm64 x86_64" | sudo tee -a /opt/local/etc/macports/macports.conf >/dev/null
+else
+    echo "build_arch x86_64" | sudo tee -a /opt/local/etc/macports/macports.conf >/dev/null
 fi
 # Prefer to get archives from the public server instead of the private server
 # preferred_hosts has no effect on archive_site_local
