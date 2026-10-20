@@ -67,7 +67,7 @@ jobs:
           fi
           for library in /opt/local/lib/libgmp.dylib /opt/local/lib/libmpfr.dylib /opt/local/lib/libmpc.dylib; do
             test -f "$library"
-            lipo -verify_arch "$architecture" "$library"
+            lipo "$library" -verify_arch "$architecture"
           done
           printf '#include <gmp.h>\n#include <mpfr.h>\n#include <mpc.h>\n' |
             /usr/bin/clang -fsyntax-only -x c -I/opt/local/include -
@@ -99,7 +99,7 @@ jobs:
             libraries="$(sudo port contents "$port" | awk '$NF ~ /\.dylib$/ { print $NF }')"
             test -n "$libraries"
             while IFS= read -r library; do
-              lipo -verify_arch x86_64 "$library"
+              lipo "$library" -verify_arch x86_64
             done <<< "$libraries"
           done
 
