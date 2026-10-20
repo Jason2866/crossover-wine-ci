@@ -20,6 +20,18 @@ MACPORTS_VERSION="2.12.4"
 OS_MAJOR=$(uname -r | cut -f 1 -d .)
 OS_ARCH=$(uname -m)
 case "$OS_ARCH" in
+    arm64)
+        HOMEBREW_PREFIX=/opt/homebrew
+        ;;
+    x86_64)
+        HOMEBREW_PREFIX=/usr/local
+        ;;
+    *)
+        HOMEBREW_PREFIX=
+        ;;
+esac
+
+case "$OS_ARCH" in
     i586|i686|x86_64)
         OS_ARCH=i386
         ;;
@@ -51,18 +63,24 @@ sudo mdutil -a -i off
 endgroup
 
 
-begingroup "Uninstalling Homebrew"
-# Move directories to /opt/off
-echo "Moving directories..."
-sudo mkdir /opt/off
-/usr/bin/sudo /usr/bin/find /opt/homebrew -mindepth 1 -maxdepth 1 -type d -print -exec /bin/mv {} /opt/off/ \;
+begingroup "Handling Homebrew"
+if [ "$HOMEBREW_PREFIX" = /usr/local ]; then
+    echo "Intel Homebrew uses /usr/local; leaving it intact to preserve runner tools."
+elif [ "$HOMEBREW_PREFIX" = /opt/homebrew ] && [ -d "$HOMEBREW_PREFIX" ]; then
+    # Move directories to /opt/off
+    echo "Moving directories..."
+    sudo mkdir -p /opt/off
+    /usr/bin/sudo /usr/bin/find "$HOMEBREW_PREFIX" -mindepth 1 -maxdepth 1 -type d -print -exec /bin/mv {} /opt/off/ \;
 
-# Unlink files
-echo "Removing files..."
-/usr/bin/sudo /usr/bin/find /opt/homebrew -mindepth 1 -maxdepth 1 -type f -print -delete
+    # Unlink files
+    echo "Removing files..."
+    /usr/bin/sudo /usr/bin/find "$HOMEBREW_PREFIX" -mindepth 1 -maxdepth 1 -type f -print -delete
 
-# Rehash to forget about the deleted files
-hash -r
+    # Rehash to forget about the deleted files
+    hash -r
+else
+    echo "No Homebrew installation found for architecture $OS_ARCH; skipping."
+fi
 endgroup
 
 
@@ -98,7 +116,7 @@ endgroup
 
 begingroup "Running postflight"
 # Create macports user
-sudo /opt/local/libexec/macports/postflight/postflight
+/usr/bin/arch -x86_64 sudo /opt/local/libexec/macports/postflight/postflight
 endgroup
 
 
@@ -109,6 +127,6 @@ endgroup
 
 
 begingroup "Updating PortIndex"
-sudo port sync >/dev/null
-sudo port sync -v
+/usr/bin/arch -x86_64 sudo /opt/local/bin/port sync >/dev/null
+/usr/bin/arch -x86_64 sudo /opt/local/bin/port sync -v
 endgroup
