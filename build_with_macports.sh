@@ -17,9 +17,9 @@ endgroup() {
 
 export GITHUB_WORKSPACE=$(pwd)
 
-# Only suports building 25.1.0 or later
+# Only suports building 26.3.0 or later
 if [ -z "$CROSS_OVER_VERSION" ]; then
-    export CROSS_OVER_VERSION="25.1.0"
+    export CROSS_OVER_VERSION="26.3.0"
     echo "CROSS_OVER_VERSION not set building crossover-wine-${CROSS_OVER_VERSION}"
 fi
 
