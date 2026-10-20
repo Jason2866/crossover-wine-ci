@@ -1,0 +1,32 @@
+name: CI Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download artifact
+      uses: dawidd6/action-download-artifact@v27
+      with:
+        workflow: macports.yml
+        workflow_conclusion: success
+        branch: ${{ github.ref_name }}
+        event: workflow_dispatch
+        name: winecx-${{ github.ref_name }}
+        path: ./artifacts/
+    - name: Release
+      uses: softprops/action-gh-release@v3
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        files: ./artifacts/**/*.tar.gz
+        fail_on_unmatched_files: true
