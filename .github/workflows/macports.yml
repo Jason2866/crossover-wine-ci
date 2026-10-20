@@ -141,3 +141,35 @@ jobs:
         with:
           name: ${{ env.WINE_INSTALLATION }}
           path: ${{ env.WINE_INSTALLATION }}.tar.gz
+
+      - name: Collect MacPorts failure logs
+        if: failure()
+        run: |
+          set -eu
+          diagnostics="$RUNNER_TEMP/macports-logs"
+          mkdir -p "$diagnostics"
+
+          for base in /opt/local/var/macports/logs /opt/local/var/macports/build; do
+            if [ -d "$base" ]; then
+              sudo find "$base" -type f \( -name main.log -o -name config.log \) -mmin -360 -print0 |
+                while IFS= read -r -d '' logfile; do
+                  relative="${logfile#/opt/local/}"
+                  destination="$diagnostics/$relative"
+                  mkdir -p "$(dirname "$destination")"
+                  sudo cp "$logfile" "$destination"
+                  sudo chown "$(id -u):$(id -g)" "$destination"
+                  echo "Collected $logfile"
+                done
+            fi
+          done
+
+          find "$diagnostics" -type f -print
+
+      - name: Upload MacPorts failure logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macports-failure-logs
+          path: ${{ runner.temp }}/macports-logs/
+          if-no-files-found: warn
+          retention-days: 7
